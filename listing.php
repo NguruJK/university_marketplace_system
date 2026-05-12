@@ -1,6 +1,8 @@
 <?php
 require 'includes/db.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $id   = intval($_GET['id'] ?? 0);
 $stmt = $pdo->prepare("

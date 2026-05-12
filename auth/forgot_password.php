@@ -1,7 +1,11 @@
 <?php
 require '../includes/db.php';
 require '../includes/mailer.php';
-session_start();
+
+// session already started by security.php via db.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
