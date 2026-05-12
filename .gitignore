@@ -1,0 +1,30 @@
+# Sensitive configuration files
+includes/mailer.php
+mpesa/config.php
+includes/vision.php
+
+# Upload folders (too large for GitHub)
+uploads/items/*
+uploads/avatars/*
+uploads/temp/*
+
+# Keep the folder structure
+!uploads/items/.gitkeep
+!uploads/avatars/.gitkeep
+!uploads/temp/.gitkeep
+
+# XAMPP specific
+*.log
+callback_log.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PHP error logs
+*.error_log
+error_log
+
+# Composer dependencies
+vendor/
+phpmailer/
