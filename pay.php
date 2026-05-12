@@ -1,6 +1,6 @@
 <?php
 require 'includes/auth_check.php';
-require 'includes/db.php';
+require_once 'includes/db.php';
 require 'mpesa/mpesa.php';
 require 'includes/fee.php';
 

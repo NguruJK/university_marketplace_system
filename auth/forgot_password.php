@@ -1,5 +1,5 @@
 <?php
-require '../includes/db.php';
+require_once 'includes/db.php';
 require '../includes/mailer.php';
 
 // session already started by security.php via db.php

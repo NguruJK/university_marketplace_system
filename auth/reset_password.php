@@ -1,8 +1,5 @@
 <?php
-require '../includes/db.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once '../includes/db.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {

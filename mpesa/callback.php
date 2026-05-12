@@ -1,6 +1,6 @@
 <?php
 // This file receives payment results from Safaricom
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/mpesa_db.php';
 
 // Get the raw JSON callback from Safaricom
 $raw      = file_get_contents('php://input');

@@ -1,8 +1,5 @@
 <?php
-require 'includes/db.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/db.php';
 
 // Search & filter inputs
 $search     = trim($_GET['search'] ?? '');

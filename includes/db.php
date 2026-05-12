@@ -14,9 +14,21 @@ try {
     die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
 }
 
-// Global sanitization helper
-function clean($input) {
-    return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
+$conn = mysqli_connect($host, $user, $pass, $db);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// 3. Prevent "Cannot redeclare clean()" error
+if (!function_exists('clean')) {
+    function clean($data) {
+        global $conn;
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return mysqli_real_escape_string($conn, $data);
+    }
 }
 
 // Global redirect helper

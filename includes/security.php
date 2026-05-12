@@ -2,17 +2,18 @@
 // ============================================================
 // UMS SECURITY HEADERS
 // ============================================================
+ob_start(); // Prevents "Headers already sent" errors
 
 // ---- 1. Session Cookie Security ----
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 0,                // Session cookie — expires when browser closes
-        'path'     => '/',
-        'domain'   => 'localhost',
-        'secure'   => false,            // Set to true when on HTTPS
-        'httponly' => true,             // Prevents JavaScript access to session cookie
-        'samesite' => 'Strict'          // Prevents CSRF attacks
-    ]);
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => null,     // Setting this to null is safer for localhost
+            'secure'   => false,
+            'httponly' => true,
+            'samesite' => 'Lax'     // Changed from 'Strict' to 'Lax'
+        ]);
     session_start();
 }
 

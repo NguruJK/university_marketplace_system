@@ -1,5 +1,5 @@
 <?php
-require '../includes/db.php';
+require_once '../includes/db.php';
 
 $token  = trim($_GET['token'] ?? '');
 $status = 'invalid';
