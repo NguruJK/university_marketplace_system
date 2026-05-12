@@ -96,7 +96,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
                 <option value="General">💬 General</option>
                 <option value="Lecturer">👨‍🏫 Lecturer</option>
                 <option value="Lost & Found">🔍 Lost & Found</option>
-                <option value="Room Change">🚪 Room Change</option>
+                <option value="Room and Hostels">🚪 Rooms and Hostels</option>
                 <option value="Events">📅 Events</option>
             </select>
             <textarea id="csQuestion"
