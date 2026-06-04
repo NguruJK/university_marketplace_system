@@ -1,6 +1,5 @@
 <?php
-require '../includes/auth_check.php';
-require '../includes/db.php';
+require_once '../includes/auth_check.php';
 
 if ($_SESSION['user_role'] !== 'admin') {
     header("Location: /ums/index.php");
@@ -31,7 +30,7 @@ $reports = $pdo->query("
 
 <div class="page-wrapper">
     <div class="admin-header">
-        <h2>⚑ Reported Content</h2>
+        <h2><i class="fa-solid fa-flag"></i> Reported Content</h2>
         <a href="/ums/admin/dashboard.php" class="back-link">← Dashboard</a>
     </div>
 

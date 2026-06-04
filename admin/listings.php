@@ -1,6 +1,5 @@
 <?php
-require '../includes/auth_check.php';
-require '../includes/db.php';
+require_once '../includes/auth_check.php';
 
 if ($_SESSION['user_role'] !== 'admin') {
     header("Location: /ums/index.php");
@@ -60,7 +59,7 @@ $listings = $stmt->fetchAll();
 
 <div class="page-wrapper">
     <div class="admin-header">
-        <h2>📦 Manage Listings</h2>
+        <h2><i class="fa-solid fa-box-open"></i> Manage Listings</h2>
         <a href="/ums/admin/dashboard.php" class="back-link">← Dashboard</a>
     </div>
 

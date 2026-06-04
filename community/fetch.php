@@ -1,9 +1,14 @@
 <?php
-require '../includes/auth_check.php';
-require '../includes/db.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once '../includes/db.php';
 header('Content-Type: application/json');
 
-$mode     = $_GET['mode']     ?? 'recent'; // recent | hot | search
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'enquiries' => [], 'total' => 0, 'has_more' => false]);
+    exit;
+}
+
+$mode     = $_GET['mode']     ?? 'recent';
 $category = $_GET['category'] ?? '';
 $search   = strip_tags(trim($_GET['search'] ?? ''));
 $page     = max(1, intval($_GET['page'] ?? 1));
@@ -22,7 +27,6 @@ if ($category) {
     $sql .= " AND e.category = ?";
     $params[] = $category;
 }
-
 if ($search) {
     $sql .= " AND e.content LIKE ?";
     $params[] = "%$search%";
@@ -38,8 +42,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $enquiries = $stmt->fetchAll();
 
-// Count total
-$count_sql = "SELECT COUNT(*) FROM general_enquiries WHERE 1";
+$count_sql    = "SELECT COUNT(*) FROM general_enquiries WHERE 1";
 $count_params = [];
 if ($category) { $count_sql .= " AND category = ?"; $count_params[] = $category; }
 if ($search)   { $count_sql .= " AND content LIKE ?"; $count_params[] = "%$search%"; }
@@ -48,10 +51,10 @@ $total->execute($count_params);
 $total_count = $total->fetchColumn();
 
 echo json_encode([
-    'success'    => true,
-    'enquiries'  => $enquiries,
-    'total'      => $total_count,
-    'page'       => $page,
-    'has_more'   => ($offset + $limit) < $total_count
+    'success'   => true,
+    'enquiries' => $enquiries,
+    'total'     => $total_count,
+    'page'      => $page,
+    'has_more'  => ($offset + $limit) < $total_count
 ]);
 ?>

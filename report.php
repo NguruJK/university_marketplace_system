@@ -14,7 +14,7 @@ $listing = $stmt->fetch();
 
 if (!$listing) {
     echo "<p style='text-align:center; padding:40px;'>
-            ⚠️ Listing not found. <a href='/ums/index.php'>Go back</a>
+            <i class="fas fa-triangle-exclamation"></i> Listing not found. <a href='/ums/index.php'>Go back</a>
           </p>";
     exit;
 }
@@ -22,7 +22,7 @@ if (!$listing) {
 // Prevent seller from reporting own listing
 if ($listing['seller_id'] === $_SESSION['user_id']) {
     echo "<p style='text-align:center; padding:40px;'>
-            ⚠️ You cannot report your own listing. <a href='/ums/index.php'>Go back</a>
+            <i class="fas fa-triangle-exclamation"></i> You cannot report your own listing. <a href='/ums/index.php'>Go back</a>
           </p>";
     exit;
 }
@@ -62,14 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $success !== 'already_reported') {
     </a>
 
     <div class="form-card">
-        <h2>⚑ Report Listing</h2>
+        <h2><i class="fa-solid fa-flag"></i> Report Listing</h2>
         <p class="auth-subtitle">
             Reporting: <strong><?= htmlspecialchars($listing['title']) ?></strong>
         </p>
 
         <?php if ($success === 'submitted'): ?>
             <div class="alert success">
-                ✅ Your report has been submitted. Our admin team will review it shortly.
+                <i class="fas fa-circle-check"></i> Your report has been submitted. Our admin team will review it shortly.
                 <br><br>
                 <a href="/ums/index.php" class="btn-primary"
                    style="display:inline-block; width:auto; padding:10px 24px;">
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $success !== 'already_reported') {
 
         <?php elseif ($success === 'already_reported'): ?>
             <div class="alert error">
-                ⚠️ You have already reported this listing. 
+                <i class="fas fa-triangle-exclamation"></i> You have already reported this listing. 
                 Our admin team will review it.
                 <br><br>
                 <a href="/ums/index.php">← Back to Marketplace</a>
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $success !== 'already_reported') {
                     <img src="/ums/uploads/items/<?= htmlspecialchars($listing['image']) ?>"
                          alt="item">
                 <?php else: ?>
-                    <div class="report-no-img">📦</div>
+                    <div class="report-no-img"><i class="fa-solid fa-box"></i></div>
                 <?php endif; ?>
                 <div>
                     <p class="report-title"><?= htmlspecialchars($listing['title']) ?></p>

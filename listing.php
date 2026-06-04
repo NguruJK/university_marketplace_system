@@ -32,7 +32,7 @@ $enquiries = $enq_stmt->fetchAll();
 <?php require 'includes/header.php'; ?>
 
 <div class="page-wrapper">
-    <a href="/ums/index.php" class="back-link">← Back to listings</a>
+    <a href="/ums/index.php" class="back-link"><i class="fa-solid fa-arrow-left"></i Back to listings</a>
 
     <div class="listing-detail">
         <!-- Image -->
@@ -41,7 +41,7 @@ $enquiries = $enq_stmt->fetchAll();
                 <img src="/ums/uploads/items/<?= htmlspecialchars($item['image']) ?>"
                      alt="<?= htmlspecialchars($item['title']) ?>">
             <?php else: ?>
-                <div class="no-image large">📦</div>
+                <div class="no-image large"><i class="fa-solid fa-box"></i></div>
             <?php endif; ?>
         </div>
 
@@ -64,7 +64,7 @@ $enquiries = $enq_stmt->fetchAll();
             </span>
                 <?php if ($item['is_verified']): ?>
                     <div class="verified-box">
-                        ✅ <strong>Verified Authentic</strong>
+                        <i class="fa-solid fa-check-circle"></i> <strong>Verified Authentic</strong>
                         <span>AI-confirmed real item p
                             hoto</span>
                     </div>
@@ -75,9 +75,9 @@ $enquiries = $enq_stmt->fetchAll();
                 <h4>Seller Info</h4>
                 <p><strong><?= htmlspecialchars($item['seller_name']) ?></strong></p>
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <p>📧 <?= htmlspecialchars($item['seller_email']) ?></p>
+                    <p><i class="fa-solid fa-envelope"></i> <?= htmlspecialchars($item['seller_email']) ?></p>
                     <?php if ($item['seller_phone']): ?>
-                        <p>📞 <?= htmlspecialchars($item['seller_phone']) ?></p>
+                        <p><i class="fa-solid fa-phone"></i> <?= htmlspecialchars($item['seller_phone']) ?></p>
                     <?php endif; ?>
                 <?php else: ?>
                     <p><a href="/ums/auth/login.php">Login to view seller contact</a></p>
@@ -88,13 +88,13 @@ $enquiries = $enq_stmt->fetchAll();
                     <a href="/ums/pay.php?listing_id=<?= $item['id'] ?>"
                     class="btn-primary"
                     style="display:block; text-align:center; margin-top:16px;">
-                        💚 Buy Now — KSh <?= number_format($item['price'], 2) ?>
+                        <i class="fa-solid fa-cart-shopping"></i> Buy Now — KSh <?= number_format($item['price'], 2) ?>
                     </a>
                 <?php endif; ?>
             <!-- Report button -->
             <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== $item['seller_id']): ?>
                 <a href="/ums/report.php?listing_id=<?= $item['id'] ?>" class="btn-outline btn-sm">
-                    ⚑ Report this listing
+                    <i class="fa-solid fa-flag"></i> Report this listing
                 </a>
             <?php endif; ?>
             <!-- Edit button — only visible to owner -->
@@ -102,7 +102,7 @@ $enquiries = $enq_stmt->fetchAll();
                 <a href="/ums/edit_listing.php?id=<?= $item['id'] ?>"
                 class="btn-primary"
                 style="display:block; text-align:center; margin-top:12px;">
-                    ✏️ Edit This Listing
+                    <i class="fa-solid fa-pen-to-square"></i> Edit This Listing
                 </a>
             <?php endif; ?>
         </div>
@@ -137,7 +137,7 @@ $enquiries = $enq_stmt->fetchAll();
                         </p>
                         <?php if ($q['answer']): ?>
                             <p class="enquiry-answer">
-                                💬 <em><?= htmlspecialchars($q['answer']) ?></em>
+                                <i class="fa-solid fa-comment-dots"></i> <em><?= htmlspecialchars($q['answer']) ?></em>
                             </p>
                         <?php elseif (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $item['seller_id']): ?>
                             <form method="POST" action="/ums/enquiry/reply.php">
@@ -147,7 +147,7 @@ $enquiries = $enq_stmt->fetchAll();
                                 <button type="submit" class="btn-primary btn-sm">Reply</button>
                             </form>
                         <?php else: ?>
-                            <p class="no-answer">⏳ Awaiting seller reply...</p>
+                            <p class="no-answer"><i class="fa-solid fa-hourglass-half"></i> Awaiting seller reply...</p>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>

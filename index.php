@@ -52,7 +52,7 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
     <form method="GET" class="filter-bar">
         <input type="text" name="search"
                value="<?= htmlspecialchars($search) ?>"
-               placeholder="🔍 Search items...">
+               placeholder= "Search items...">
 
         <select name="category">
             <option value="">All Categories</option>
@@ -85,7 +85,7 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
     <!-- Listings Grid -->
     <?php if (empty($listings)): ?>
         <div class="empty-state">
-            <p>😕 No items found. Be the first to <a href="/ums/post_item.php">post one!</a></p>
+            <p><i class="fa-solid fa-box-open"></i> No items found. Be the first to <a href="/ums/post_item.php">post one!</a></p>
         </div>
     <?php else: ?>
         <div class="listings-grid">
@@ -96,7 +96,7 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
                             <img src="/ums/uploads/items/<?= htmlspecialchars($item['image']) ?>"
                                  alt="<?= htmlspecialchars($item['title']) ?>">
                         <?php else: ?>
-                            <div class="no-image">📦</div>
+                            <div class="no-image"><i class="fa-solid fa-box"></i></div>
                         <?php endif; ?>
                     </div>
                     <div class="card-body">
@@ -108,7 +108,7 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
                                 <?= ucfirst(str_replace('_', ' ', $item['condition'])) ?>
                             </span>
                             <?php if ($item['is_verified']): ?>
-                                <span class="verified-badge">✅ Verified</span>
+                                <span class="verified-badge"><i class="fa-solid fa-circle-check" style="font-size:2rem;color:var(--color-success);"></i> Verified</span>
                             <?php endif; ?>
                             <span class="card-seller">by <?= htmlspecialchars($item['seller_name']) ?></span>
                         </div>
@@ -119,5 +119,30 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
     <?php endif; ?>
 
 </div>
+
+<script>
+// Silently refresh listings grid every 60 seconds
+setInterval(function() {
+    var url = window.location.href;
+    fetch(url)
+        .then(function(res) { return res.text(); })
+        .then(function(html) {
+            var parser   = new DOMParser();
+            var doc      = parser.parseFromString(html, 'text/html');
+            var newGrid  = doc.querySelector('.listings-grid');
+            var oldGrid  = document.querySelector('.listings-grid');
+            var newCount = doc.querySelector('.results-count');
+            var oldCount = document.querySelector('.results-count');
+
+            if (newGrid && oldGrid) {
+                oldGrid.innerHTML = newGrid.innerHTML;
+            }
+            if (newCount && oldCount) {
+                oldCount.innerHTML = newCount.innerHTML;
+            }
+        })
+        .catch(function() {}); // Silent fail
+}, 60000); // Every 60 seconds
+</script>
 
 <?php require 'includes/footer.php'; ?>

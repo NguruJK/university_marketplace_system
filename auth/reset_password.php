@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db.php';
 
-// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     header("Location: /ums/index.php");
     exit;
@@ -10,34 +9,49 @@ if (isset($_SESSION['user_id'])) {
 $token   = trim($_GET['token'] ?? '');
 $errors  = [];
 $success = '';
+$user    = null;
+$status  = 'invalid';
 
-// Validate token
-$stmt = $pdo->prepare("
-    SELECT * FROM users
-    WHERE reset_token = ?
-    AND reset_token_expires > NOW()
-    AND is_active = 1
-");
-$stmt->execute([$token]);
-$user = $stmt->fetch();
+if ($token) {
+    // Fetch user by token — check expiry in PHP not MySQL
+    $stmt = $pdo->prepare("
+        SELECT * FROM users
+        WHERE reset_token = ?
+        AND is_active = 1
+    ");
+    $stmt->execute([$token]);
+    $user = $stmt->fetch();
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
+    if ($user) {
+        if (!$user['reset_token_expires'] ||
+            strtotime($user['reset_token_expires']) < time()) {
+            // Token expired — clear it
+            $pdo->prepare("
+                UPDATE users
+                SET reset_token = NULL, reset_token_expires = NULL
+                WHERE id = ?
+            ")->execute([$user['id']]);
+            $status = 'expired';
+            $user   = null;
+        } else {
+            $status = 'valid';
+        }
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $status === 'valid' && $user) {
     $password = $_POST['password'];
     $confirm  = $_POST['confirm_password'];
 
     if (strlen($password) < 6) {
         $errors[] = "Password must be at least 6 characters.";
     }
-
     if ($password !== $confirm) {
         $errors[] = "Passwords do not match.";
     }
 
     if (empty($errors)) {
         $hashed = password_hash($password, PASSWORD_BCRYPT);
-
-        // Update password and clear reset token
         $pdo->prepare("
             UPDATE users
             SET password = ?,
@@ -45,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                 reset_token_expires = NULL
             WHERE id = ?
         ")->execute([$hashed, $user['id']]);
-
         $success = "password_changed";
     }
 }
@@ -60,13 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
         </div>
 
         <?php if ($success === 'password_changed'): ?>
-            <!-- Success State -->
             <div style="text-align:center;">
-                <div style="font-size:3rem; margin-bottom:16px;">✅</div>
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-circle-check"></i></div>
                 <h2 style="color:var(--color-primary);">Password Changed!</h2>
                 <p style="color:var(--color-text-muted); margin:12px 0 24px;">
                     Your password has been successfully updated.
-                    You can now login with your new password.
                 </p>
                 <a href="/ums/auth/login.php" class="btn-primary"
                    style="display:inline-block; width:auto; padding:12px 32px;">
@@ -74,14 +85,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                 </a>
             </div>
 
-        <?php elseif (!$token || !$user): ?>
-            <!-- Invalid/Expired Token -->
+        <?php elseif ($status === 'expired'): ?>
             <div style="text-align:center;">
-                <div style="font-size:3rem; margin-bottom:16px;">❌</div>
-                <h2 style="color:var(--color-danger-text);">Invalid or Expired Link</h2>
-                <p style="color:var(--color-text-muted); margin:12px 0 24px;">
-                    This password reset link is invalid or has expired.
-                    Reset links are only valid for <strong>1 hour</strong>.
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-clock"></i></div>
+                <h2 style="color:var(--color-warning-text);">Link Expired</h2>
+                <p style="color:#555; margin:12px 0 24px;">
+                    Your reset link expired. Links are valid for
+                    <strong>1 hour</strong> only.
+                </p>
+                <a href="/ums/auth/forgot_password.php" class="btn-primary"
+                   style="display:inline-block; width:auto; padding:12px 32px;">
+                    Request New Link
+                </a>
+            </div>
+
+        <?php elseif ($status !== 'valid'): ?>
+            <div style="text-align:center;">
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-circle-xmark"></i></div>
+                <h2 style="color:var(--color-danger-text);">Invalid Link</h2>
+                <p style="color:#555; margin:12px 0 24px;">
+                    This password reset link is invalid or has already been used.
                 </p>
                 <a href="/ums/auth/forgot_password.php" class="btn-primary"
                    style="display:inline-block; width:auto; padding:12px 32px;">
@@ -90,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
             </div>
 
         <?php else: ?>
-            <!-- Reset Form -->
             <h2>🔑 Reset Password</h2>
             <p class="auth-subtitle">
                 Setting new password for
@@ -111,15 +133,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                     <div class="password-wrap">
                         <input type="password" name="password"
                                id="newPassword"
-                               placeholder="At least 6 characters"
-                               required>
+                               placeholder="At least 6 characters" required>
                         <button type="button" class="pwd-toggle"
-                                onclick="togglePwd('newPassword', this)">
-                            👁
-                        </button>
+                                onclick="togglePwd('newPassword', this)"><i class="fa-solid fa-eye"></i></button>
                     </div>
-
-                    <!-- Password Strength Bar -->
                     <div class="pwd-strength-bar">
                         <div class="pwd-strength-fill" id="strengthFill"></div>
                     </div>
@@ -131,19 +148,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                     <div class="password-wrap">
                         <input type="password" name="confirm_password"
                                id="confirmPassword"
-                               placeholder="Repeat your password"
-                               required>
+                               placeholder="Repeat your password" required>
                         <button type="button" class="pwd-toggle"
-                                onclick="togglePwd('confirmPassword', this)">
-                            👁
-                        </button>
+                                onclick="togglePwd('confirmPassword', this)"><i class="fa-solid fa-eye"></i></button>
                     </div>
                     <small class="pwd-match-label" id="matchLabel"></small>
                 </div>
 
-                <button type="submit" class="btn-primary">
-                    🔐 Reset Password
-                </button>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-key"></i> Reset Password</button>
             </form>
 
             <p class="auth-footer">
@@ -154,71 +166,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
 </div>
 
 <script>
-// ---- Toggle Password Visibility ----
-function togglePwd(inputId, btn) {
-    const input = document.getElementById(inputId);
-    if (input.type === 'password') {
-        input.type  = 'text';
-        btn.textContent = '🙈';
-    } else {
-        input.type  = 'password';
-        btn.textContent = '👁';
-    }
+function togglePwd(id, btn) {
+    var input = document.getElementById(id);
+    input.type      = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
 }
 
-// ---- Password Strength ----
-const pwdInput     = document.getElementById('newPassword');
-const confirmInput = document.getElementById('confirmPassword');
-const fill         = document.getElementById('strengthFill');
-const label        = document.getElementById('strengthLabel');
-const matchLabel   = document.getElementById('matchLabel');
+var pwdInput     = document.getElementById('newPassword');
+var confirmInput = document.getElementById('confirmPassword');
 
 if (pwdInput) {
     pwdInput.addEventListener('input', function() {
-        const val      = this.value;
-        let strength   = 0;
-        let text       = '';
-        let color      = '';
+        var val = this.value, strength = 0, text = '', color = '';
+        if (val.length >= 6)           strength++;
+        if (val.length >= 10)          strength++;
+        if (/[A-Z]/.test(val))         strength++;
+        if (/[0-9]/.test(val))         strength++;
+        if (/[^A-Za-z0-9]/.test(val))  strength++;
 
-        if (val.length >= 6)                          strength++;
-        if (val.length >= 10)                         strength++;
-        if (/[A-Z]/.test(val))                        strength++;
-        if (/[0-9]/.test(val))                        strength++;
-        if (/[^A-Za-z0-9]/.test(val))                strength++;
+        if      (strength <= 1) { text = 'Weak';   color = '#dc2626'; }
+        else if (strength <= 2) { text = 'Fair';   color = '#e07b00'; }
+        else if (strength <= 3) { text = 'Good';   color = '#2d7a4f'; }
+        else                    { text = 'Strong'; color = '#40916c'; }
 
-        switch (true) {
-            case strength <= 1:
-                text = 'Weak';     color = '#dc2626'; break;
-            case strength <= 2:
-                text = 'Fair';     color = '#e07b00'; break;
-            case strength <= 3:
-                text = 'Good';     color = '#2d7a4f'; break;
-            default:
-                text = 'Strong';   color = '#40916c'; break;
-        }
-
-        if (fill)  {
-            fill.style.width      = (strength / 5 * 100) + '%';
-            fill.style.background = color;
-        }
-        if (label) {
-            label.textContent = val.length > 0 ? text : '';
-            label.style.color = color;
-        }
+        var fill  = document.getElementById('strengthFill');
+        var label = document.getElementById('strengthLabel');
+        if (fill)  { fill.style.width = (strength/5*100)+'%'; fill.style.background = color; }
+        if (label) { label.textContent = val.length > 0 ? text : ''; label.style.color = color; }
     });
 }
 
 if (confirmInput) {
     confirmInput.addEventListener('input', function() {
-        const pwd  = pwdInput ? pwdInput.value : '';
-        if (matchLabel) {
-            if (this.value === pwd) {
-                matchLabel.textContent = '✅ Passwords match';
-                matchLabel.style.color = '#40916c';
-            } else {
-                matchLabel.textContent = '❌ Passwords do not match';
-                matchLabel.style.color = '#dc2626';
-            }
+        var match = document.getElementById('matchLabel');
+        if (!match) return;
+        if (this.value === pwdInput.value) {
+            match.textContent = '✅ Passwords match';
+            match.style.color = '#40916c';
+        } else {
+            match.textContent = '❌ Passwords do not match';
+            match.style.color = '#dc2626';
         }
     });
 }

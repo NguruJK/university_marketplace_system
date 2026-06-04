@@ -43,7 +43,7 @@ if ($token) {
         <div class="auth-card" style="text-align:center;">
 
             <?php if ($status === 'success'): ?>
-                <div style="font-size:3rem; margin-bottom:16px;">✅</div>
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-circle-check"></i></div>
                 <h2 style="color:#003366;">Email Verified!</h2>
                 <p style="color:#555; margin:12px 0 24px;">
                     Your account has been successfully verified.
@@ -56,7 +56,7 @@ if ($token) {
 
             <?php elseif ($status === 'expired'): ?>
                 <!-- Expired Token -->
-                <div style="font-size:3rem; margin-bottom:16px;">⏱️</div>
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-clock"></i></div>
                 <h2 style="color:var(--color-warning-text);">Link Expired</h2>
                 <p style="color:#555; margin:12px 0 24px;">
                     Your verification link expired after <strong>24 hours</strong>.
@@ -70,7 +70,7 @@ if ($token) {
 
             <?php else: ?>
                 <!-- Invalid Token -->
-                <div style="font-size:3rem; margin-bottom:16px;">❌</div>
+                <div style="font-size:3rem; margin-bottom:16px;"><i class="fa-solid fa-circle-xmark"></i></div>
                 <h2 style="color:var(--color-danger-text);">Invalid Link</h2>
                 <p style="color:#555; margin:12px 0 24px;">
                     This verification link is invalid or has already been used.

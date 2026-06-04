@@ -1,55 +1,27 @@
 <?php
-// ============================================================
-// UMS SECURITY HEADERS
-// ============================================================
-ob_start(); // Prevents "Headers already sent" errors
-
-// ---- 1. Session Cookie Security ----
+// Only start session if not already active
 if (session_status() === PHP_SESSION_NONE) {
-        session_set_cookie_params([
-            'lifetime' => 0,
-            'path'     => '/',
-            'domain'   => null,     // Setting this to null is safer for localhost
-            'secure'   => false,
-            'httponly' => true,
-            'samesite' => 'Lax'     // Changed from 'Strict' to 'Lax'
-        ]);
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_samesite', 'Strict');
     session_start();
 }
 
-// ---- 2. Content Security Policy ----
-// Prevents XSS by controlling which resources can load
-header("Content-Security-Policy: " .
-    "default-src 'self'; " .
-    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " .
-    "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " .
-    "img-src 'self' data: https:; " .
-    "font-src 'self' https://cdnjs.cloudflare.com; " .
-    "connect-src 'self' https://api.imagga.com https://sandbox.safaricom.co.ke; " .
-    "frame-ancestors 'none';"
-);
-
-// ---- 3. Prevent Clickjacking ----
-header("X-Frame-Options: DENY");
-
-// ---- 4. Prevent MIME Sniffing ----
-header("X-Content-Type-Options: nosniff");
-
-// ---- 5. XSS Protection (older browsers) ----
-header("X-XSS-Protection: 1; mode=block");
-
-// ---- 6. Referrer Policy ----
-header("Referrer-Policy: strict-origin-when-cross-origin");
-
-// ---- 7. Permissions Policy ----
-// Controls which browser features can be used
-header("Permissions-Policy: " .
-    "camera=(self), " .         // Allow camera only on our site (for photo capture)
-    "microphone=(), " .         // Block microphone
-    "geolocation=(), " .        // Block location
-    "payment=()"                // Block payment APIs (we use M-Pesa directly)
-);
-
-// ---- 8. Remove PHP version header ----
-header_remove("X-Powered-By");
+// Security headers — only send if headers not already sent
+if (!headers_sent()) {
+    header("Content-Security-Policy: " .
+        "default-src 'self'; " .
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " .
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " .
+        "img-src 'self' data: https:; " .
+        "font-src 'self' https://cdnjs.cloudflare.com; " .
+        "connect-src 'self' https://api.imagga.com https://sandbox.safaricom.co.ke; " .
+        "frame-ancestors 'none';"
+    );
+    header("X-Frame-Options: DENY");
+    header("X-Content-Type-Options: nosniff");
+    header("X-XSS-Protection: 1; mode=block");
+    header("Referrer-Policy: strict-origin-when-cross-origin");
+    header_remove("X-Powered-By");
+}
 ?>

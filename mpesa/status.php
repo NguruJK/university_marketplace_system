@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
-session_start();
+header('Content-Type: application/json');
 
 $checkout_id = trim($_GET['checkout_id'] ?? '');
 

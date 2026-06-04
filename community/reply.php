@@ -1,7 +1,12 @@
 <?php
-require '../includes/auth_check.php';
-require '../includes/db.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once '../includes/db.php';
 header('Content-Type: application/json');
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Session expired. Please login again.']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
@@ -16,7 +21,6 @@ if (!$enquiry_id || empty($reply_text)) {
     exit;
 }
 
-// Check enquiry exists and is open
 $stmt = $pdo->prepare("SELECT * FROM general_enquiries WHERE enquiry_id = ?");
 $stmt->execute([$enquiry_id]);
 $enquiry = $stmt->fetch();
@@ -33,7 +37,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$enquiry_id, $_SESSION['user_id'], $reply_text]);
 $reply_id = $pdo->lastInsertId();
 
-// Fetch reply with student info
 $stmt = $pdo->prepare("
     SELECT r.*, u.full_name AS student_name, u.avatar
     FROM enquiry_replies r

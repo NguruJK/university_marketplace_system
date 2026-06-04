@@ -43,7 +43,7 @@ if ($email) {
 <div class="page-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card" style="text-align:center;">
-            <h2 style="color:#003366; margin-bottom:16px;">📧 Resend Verification</h2>
+            <h2 style="color:#003366; margin-bottom:16px;"><i class="fa-solid fa-envelope"></i> Resend Verification</h2>
 
             <?php if ($message): ?>
                 <div class="alert <?= $type ?>"><?= $message ?></div>

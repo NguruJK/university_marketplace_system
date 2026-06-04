@@ -19,14 +19,14 @@ $listing = $stmt->fetch();
 // Validate ownership
 if (!$listing) {
     echo "<p style='text-align:center;padding:40px'>
-            ⚠️ Listing not found. <a href='/ums/index.php'>Go back</a>
+           <i class="fas fa-triangle-exclamation"></i>  Listing not found. <a href='/ums/index.php'>Go back</a>
           </p>";
     exit;
 }
 
 if ($listing['seller_id'] !== $_SESSION['user_id'] && $_SESSION['user_role'] !== 'admin') {
     echo "<p style='text-align:center;padding:40px'>
-            ⚠️ You are not authorized to edit this listing.
+            <i class="fas fa-triangle-exclamation"></i> You are not authorized to edit this listing.
           </p>";
     exit;
 }
@@ -123,12 +123,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </a>
 
     <div class="form-card" style="max-width:680px;">
-        <h2>✏️ Edit Listing</h2>
+        <h2><i class="fa-solid fa-pen-to-square"></i> Edit Listing</h2>
         <p class="auth-subtitle">Update your item details below</p>
 
         <?php if ($success): ?>
             <div class="alert success">
-                ✅ <?= $success ?>
+                <i class="fas fa-circle-check"></i> <?= $success ?>
                 <a href="/ums/listing.php?id=<?= $listing_id ?>">View listing →</a>
             </div>
         <?php endif; ?>
@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php else: ?>
                     <div class="no-image" style="height:100px; border-radius:8px; margin-bottom:10px;">
-                        📦 No photo
+                        <i class="fa-solid fa-box"></i> No photo
                     </div>
                 <?php endif; ?>
 
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Action Buttons -->
             <div class="edit-actions">
                 <button type="submit" class="btn-primary" style="width:auto; padding:12px 32px;">
-                    💾 Save Changes
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
                 </button>
                 <a href="/ums/listing.php?id=<?= $listing_id ?>"
                    class="btn-outline">

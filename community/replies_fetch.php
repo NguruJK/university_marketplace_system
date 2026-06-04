@@ -1,11 +1,20 @@
 <?php
-require '../includes/auth_check.php';
-require '../includes/db.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once '../includes/db.php';
 header('Content-Type: application/json');
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'replies' => []]);
+    exit;
+}
 
 $enquiry_id = intval($_GET['enquiry_id'] ?? 0);
 
-// Increment view count
+if (!$enquiry_id) {
+    echo json_encode(['success' => false, 'replies' => []]);
+    exit;
+}
+
 $pdo->prepare("UPDATE general_enquiries SET views = views + 1 WHERE enquiry_id = ?")
     ->execute([$enquiry_id]);
 
